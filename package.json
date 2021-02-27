@@ -1,0 +1,25 @@
+{
+  "name": "starter",
+  "version": "1.0.0",
+  "main": "index.html",
+  "author": "tanim",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "devDependencies": {
+    "@parcel/optimizer-cssnano": "2.0.0-nightly.611",
+    "@parcel/optimizer-htmlnano": "2.0.0-nightly.611",
+    "@parcel/packager-css": "2.0.0-nightly.611",
+    "@parcel/packager-html": "2.0.0-nightly.611",
+    "@parcel/transformer-css": "2.0.0-nightly.611",
+    "@parcel/transformer-html": "2.0.0-nightly.611",
+    "@parcel/transformer-postcss": "2.0.0-nightly.611",
+    "@parcel/transformer-posthtml": "2.0.0-nightly.611",
+    "@parcel/transformer-sass": "2.0.0-nightly.611",
+    "parcel": "^2.0.0-nightly.609",
+    "postcss": "^8.2.1",
+    "sass": "^1.26.10"
+  }
+}
