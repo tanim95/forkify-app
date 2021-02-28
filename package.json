@@ -21,5 +21,9 @@
     "parcel": "^2.0.0-nightly.609",
     "postcss": "^8.2.1",
     "sass": "^1.26.10"
+  },
+  "dependencies": {
+    "core-js": "^3.9.0",
+    "regenerator-runtime": "^0.13.7"
   }
 }
