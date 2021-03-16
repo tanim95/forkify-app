@@ -1,4 +1,5 @@
 import { async } from 'regenerator-runtime';
+import * as config from './config';
 
 const TimeOut = function (s) {
   return new Promise(function (_, reject) {
