@@ -5549,10 +5549,21 @@ class paginationView extends _views.default {
 
 
     if (curPage < numPages) {
-      return {
-        next,
-        preview
-      };
+      return `
+      <button data-goto ="${curPage - 1}" class="btn--inline pagination__btn--prev">
+            <svg class="search__icon">
+              <use href="${_icons.default}#icon-arrow-left"></use>
+            </svg>
+            <span>Page ${curPage - 1}</span>
+          </button>
+
+          <button data-goto ="${curPage + 1}" class="btn--inline pagination__btn--next">
+          <span>Page ${curPage + 1}</span>
+          <svg class="search__icon">
+            <use href="${_icons.default}#icon-arrow-right"></use>
+          </svg>
+        </button>
+      `;
     } // page 1,and there are no page
 
 
