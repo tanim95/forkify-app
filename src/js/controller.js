@@ -2,23 +2,11 @@ import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
+import bookmarksView from './views/bookmarkView.js';
 import paginationView from './views/paginationView.js';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { async } from 'regenerator-runtime/runtime';
-
-// to keep the app state same by parcel
-// if (module.hot) {
-//   module.hot.accept();
-// }
-
-const timeout = function (s) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error(`Request took too long! Timeout after ${s} second`));
-    }, s * 1000);
-  });
-};
 
 // https://forkify-api.herokuapp.com/v2
 
@@ -33,8 +21,11 @@ const controlRecipe = async function () {
     //load recipe
     await model.loadRecipe(id);
 
+    resultsView.update(model.getSearchResultsPage());
     //rendring recipe
     recipeView.render(model.state.recipe);
+
+    // bookmarksView.update(model.state.bookmarks);
   } catch (err) {
     recipeView.renderError(err);
   }
@@ -59,9 +50,31 @@ const controllPagination = function (gotoPage) {
   paginationView.render(model.state.search);
 };
 
+const controlServings = function (newServings) {
+  model.updateServings(newServings);
+  // recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
+};
+
+const controllAddBookMark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+
+  recipeView.update(model.state.recipe);
+
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlBookmark = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+
 function init() {
   recipeView.addHandlerRender(controlRecipe);
+  recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHnadlerBookmark(controllAddBookMark);
   searchView.addHandleSearch(controllSearchResults);
+  bookmarksView.addHandlerRender(controlBookmark);
   paginationView.addHandlerClick(controllPagination);
 }
 init();
