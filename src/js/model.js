@@ -1,7 +1,7 @@
 import { safeMode } from 'highlight.js';
 import { async } from 'regenerator-runtime/runtime';
-import { API_URL, RES_PER_PAGE } from './config';
-import { getJSON } from './helpers';
+import { API_URL, RES_PER_PAGE, KEY } from './config';
+import { getJSON, sendJSON } from './helpers';
 
 export const state = {
   recipe: {},
@@ -14,22 +14,27 @@ export const state = {
   bookmarks: [],
 };
 
+const createRecipeObject = function (data) {
+  const { recipe } = data.data;
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    publisher: recipe.publisher,
+    sourceUrl: recipe.source_url,
+    image: recipe.image_url,
+    servings: recipe.servings,
+    cookingTime: recipe.cooking_time,
+    ingredients: recipe.ingredients,
+    quantity: recipe.quantity,
+    ...(recipe.key && { key: recipe.key }),
+  };
+};
+
 export const loadRecipe = async function (id) {
   try {
-    const data = await getJSON(`${API_URL}${id}`);
+    const data = await getJSON(`${API_URL}${id}?key=${KEY}`);
 
-    let { recipe } = data.data;
-    state.recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookingTime: recipe.cooking_time,
-      ingredients: recipe.ingredients,
-      quantity: recipe.quantity,
-    };
+    state.recipe = createRecipeObject(data);
 
     if (state.bookmarks.some(bookmark => bookmark.id === id))
       state.recipe.bookmarked = true;
@@ -44,7 +49,7 @@ export const loadRecipe = async function (id) {
 export const loadSearchResult = async function (query) {
   try {
     state.search.query = query;
-    const data = await getJSON(`${API_URL}?search=${query}`);
+    const data = await getJSON(`${API_URL}?search=${query}&key=${KEY}`);
     state.search.results = data.data.recipes.map(rec => {
       return {
         id: rec.id,
@@ -96,3 +101,34 @@ const init = function () {
   if (storage) state.bookmarks = JSON.parse(storage);
 };
 init();
+
+export const uploadRecipe = async function (newrecipe) {
+  try {
+    const ingredients = Object.entries(newrecipe)
+      .filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
+      .map(ing => {
+        const ingArr = ing[1].split(',');
+
+        if (ingArr.length !== 3)
+          throw new Error('Wrong ingredients format :( ');
+
+        const [quantity, unit, description] = ingArr;
+        return { quantity: quantity ? +quantity : null, unit, description };
+      });
+
+    const recipe = {
+      title: newrecipe.title,
+      source_url: newrecipe.sourceUrl,
+      image_url: newrecipe.image,
+      publisher: newrecipe.publisher,
+      cooking_time: +newrecipe.cookingTime,
+      servings: +newrecipe.servings,
+      ingredients: newrecipe.ingredients,
+    };
+    const data = await sendJSON(`${API_URL}?key=${KEY}`, recipe);
+    state.recipe = createRecipeObject(data);
+    addBookmark(state.recipe);
+  } catch (err) {
+    throw err;
+  }
+};
